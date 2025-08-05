@@ -32,7 +32,16 @@ pipeline {
         stage('Run Docker Container') {
             steps {
                 echo 'Running Docker container...'
-                sh "docker run -d -p $CONTAINER_PORT:$CONTAINER_PORT $IMAGE_NAME"
+                sh '''
+                    echo "Stopping any container already using port 3000..."
+                    docker ps --filter "publish=3000" --format "{{.ID}}" | xargs -r docker stop
+
+                    echo "Removing any existing container named myapp..."
+                    docker rm -f myapp || true
+
+                    echo "Starting a new container..."
+                    docker run -d -p 3000:3000 --name myapp myapp
+                '''
             }
         }
     }
