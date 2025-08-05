@@ -1,55 +1,40 @@
 pipeline {
     agent any
 
-    environment {
-        IMAGE_NAME = 'myapp'
-        CONTAINER_PORT = '3000'
-    }
-
     stages {
-
-        stage('Clone Repository') {
+        stage('Clone') {
             steps {
-                echo 'Cloning source code...'
-                // This happens automatically if using "Pipeline script from SCM"
+                git 'https://github.com/bhaskar9412349775/jenkins-node-app.git'
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Build') {
             steps {
                 echo 'Installing dependencies...'
                 sh 'npm install'
             }
         }
 
-        stage('Run Tests') {
+        stage('Test') {
             steps {
                 echo 'Running tests...'
                 sh 'npm test'
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Docker Build') {
             steps {
                 echo 'Building Docker image...'
-                sh "docker build -t $IMAGE_NAME ."
+                sh 'docker build -t myapp:latest .'
             }
         }
 
-        stage('Run Docker Container') {
+        stage('Docker Run') {
             steps {
                 echo 'Running Docker container...'
-                sh "docker run -d -p $CONTAINER_PORT:$CONTAINER_PORT $IMAGE_NAME"
+                sh 'docker run -d -p 3000:3000 myapp:latest'
             }
-        }
-    }
-
-    post {
-        success {
-            echo ' Build and deployment completed successfully!'
-        }
-        failure {
-            echo ' Build failed. Check logs for errors.'
         }
     }
 }
+
