@@ -6,3 +6,4 @@ This is a minimal web server built with Node.js, packaged with Docker, and deplo
 ```bash
 npm install
 npm start
+## Auto-trigger test
