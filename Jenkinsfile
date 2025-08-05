@@ -1,39 +1,48 @@
 pipeline {
     agent any
 
-    stages {
-        stage('Clone') {
-            steps {
-                git 'https://github.com/bhaskar9412349775/jenkins-node-app.git'
-            }
-        }
+    environment {
+        IMAGE_NAME = 'myapp'
+        CONTAINER_PORT = '3000'
+    }
 
-        stage('Build') {
+    stages {
+
+        stage('Install Dependencies') {
             steps {
                 echo 'Installing dependencies...'
                 sh 'npm install'
             }
         }
 
-        stage('Test') {
+        stage('Run Tests') {
             steps {
                 echo 'Running tests...'
                 sh 'npm test'
             }
         }
 
-        stage('Docker Build') {
+        stage('Build Docker Image') {
             steps {
                 echo 'Building Docker image...'
-                sh 'docker build -t myapp:latest .'
+                sh "docker build -t $IMAGE_NAME ."
             }
         }
 
-        stage('Docker Run') {
+        stage('Run Docker Container') {
             steps {
                 echo 'Running Docker container...'
-                sh 'docker run -d -p 3000:3000 myapp:latest'
+                sh "docker run -d -p $CONTAINER_PORT:$CONTAINER_PORT $IMAGE_NAME"
             }
+        }
+    }
+
+    post {
+        success {
+            echo ' Build and deployment completed successfully!'
+        }
+        failure {
+            echo ' Build failed. Check logs for errors.'
         }
     }
 }
